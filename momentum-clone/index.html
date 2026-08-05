@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Momentum</title>
+  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <div class="arc1"></div><div class="arc2"></div>
+  <button class="left-button circle garden-icon-button" type="button" aria-label="Open garden" aria-expanded="false" aria-controls="forest-panel"><img src="garden-scene.png" alt=""></button>
+  <button class="menu circle small todo-icon" type="button" aria-label="Open to-do list" aria-expanded="false" aria-controls="todo-panel"><i data-lucide="notebook-pen"></i></button>
+  <nav class="right-nav" aria-label="Quick actions">
+    <button class="circle pomodoro-trigger" type="button" aria-label="Open Pomodoro timer" aria-expanded="false" aria-controls="pomodoro-panel"><i data-lucide="timer"></i></button>
+    <button class="circle" type="button" aria-label="Camera"><i data-lucide="camera"></i></button>
+    <button class="circle" type="button" aria-label="Settings"><i data-lucide="settings"></i></button>
+  </nav>
+  <main class="center"><h1>Momentum</h1><div class="search-wrapper"><div class="search ai-search"><i data-lucide="sparkles"></i><input type="text" placeholder="Ask AI to explain in detail" aria-label="Ask AI to explain in detail"></div><button class="circle mini ai-source-trigger" type="button" aria-label="Find explainer videos"><i data-lucide="video"></i></button></div></main>
+  <section class="ai-panel center-panel" aria-hidden="true" aria-label="AI chat"><button class="panel-close" type="button" aria-label="Close AI chat"><i data-lucide="x"></i></button><div class="chat-header"><span class="chat-avatar">✦</span><div><h2>Momentum AI</h2><p>Here to explain, one step at a time</p></div></div><div class="chat-messages" aria-live="polite"></div><form class="chat-form"><label class="sr-only" for="chat-input">Ask a follow-up question</label><input id="chat-input" type="text" placeholder="Ask a follow-up…" autocomplete="off"><button type="submit" aria-label="Send message"><i data-lucide="arrow-up"></i></button></form><button class="ai-videos" type="button"><i data-lucide="youtube"></i> Video sources</button></section>
+  <section class="source-panel center-panel" aria-hidden="true" aria-label="YouTube video sources"><button class="panel-close" type="button" aria-label="Close video sources"><i data-lucide="x"></i></button><p class="panel-kicker">Video sources</p><h2>Watch &amp; learn</h2><p class="source-intro">YouTube videos only—choose an educator and explore this topic at your own pace.</p><div class="source-links"></div></section>
+  <section class="forest-panel center-panel" id="forest-panel" aria-hidden="true" aria-label="Garden"><button class="panel-close" type="button" aria-label="Close garden"><i data-lucide="x"></i></button><div class="forest-sky"><span class="sun"></span><span class="cloud cloud-one"></span><span class="cloud cloud-two"></span><span class="butterfly infinity-butterfly" aria-label="Yellow and black garden visitor" role="img"><i></i><b></b><em></em><strong></strong></span></div><div class="forest-copy"><p class="panel-kicker">A moment for you</p><h2>Your garden</h2><p>Make space for small wins and watch your color collection grow.</p></div><div class="garden" aria-label="Garden rewards"><div class="garden-base"></div><div class="grass"></div><div class="fence fence-left"></div><div class="fence fence-right"></div><div class="tree tree-one"><span></span></div><div class="tree tree-two"><span></span></div><div class="bench"><i></i><b></b><em></em></div><div class="wildflowers"><span></span><span></span><span></span><span></span></div><div class="nectar-butterfly nectar-one"><i></i><b></b></div><div class="nectar-butterfly nectar-two"><i></i><b></b></div><div class="flowers" aria-label="Earned hydrangeas"></div><p class="garden-note">Finish a focus session to grow a hydrangea.</p></div></section>
+  <section class="pomodoro-panel center-panel" id="pomodoro-panel" aria-hidden="true" aria-label="Pomodoro timer"><button class="panel-close" type="button" aria-label="Close Pomodoro timer"><i data-lucide="x"></i></button><p class="panel-kicker">One thing at a time</p><h2>Focus timer</h2><label class="sr-only" for="pomodoro-task">Task name</label><input class="pomodoro-task" id="pomodoro-task" maxlength="120" placeholder="What are you focusing on?" autocomplete="off"><label class="duration-control" for="focus-duration">Focus length <input id="focus-duration" type="number" min="10" max="180" value="25" inputmode="numeric"> <span>minutes</span></label><div class="timer-display" aria-live="polite">25:00</div><div class="timer-controls"><button class="timer-start" type="button"><i data-lucide="play"></i><span>Start focus</span></button><button class="timer-reset" type="button" aria-label="Reset timer"><i data-lucide="rotate-ccw"></i></button></div><p class="timer-hint">Choose any focus length from 10 minutes. When time is up, your task is added to To do and you earn a flower.</p></section>
+  <aside class="todo-panel" id="todo-panel" aria-hidden="true" aria-label="To-do list">
+    <div class="todo-panel__header"><div><p class="todo-panel__eyebrow">Momentum</p><h2>To do</h2></div><button class="todo-close" type="button" aria-label="Close to-do list"><i data-lucide="x"></i></button></div>
+    <form class="todo-form"><label class="sr-only" for="new-todo">New task</label><input id="new-todo" type="text" maxlength="120" placeholder="What would you like to do?" autocomplete="off"><button type="submit" aria-label="Add task"><i data-lucide="plus"></i></button></form>
+    <p class="todo-count" aria-live="polite"></p><ul class="todo-list" aria-label="Tasks"></ul><p class="todo-empty">Your list is clear. Enjoy the moment.</p>
+  </aside>
+  <div class="todo-scrim" aria-hidden="true"></div>
+  <script src="script.js"></script>
+</body>
+</html>
