@@ -105,10 +105,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <span className="text-[11px] text-[#A09B8E] block mb-1">Focus</span>
               <input
                 type="number"
-                min="1"
-                max="180"
+                min="10"
+                max="100"
                 value={durationMinutes}
-                onChange={(e) => setDurationMinutes(Math.max(1, Number(e.target.value) || 1))}
+                onChange={(e) => setDurationMinutes(Math.max(10, Math.min(100, Number(e.target.value) || 10)))}
                 className="w-full px-3 py-1.5 border border-[#E5E0D5] rounded-xl text-center font-semibold text-[#4A4A4A] bg-white focus:outline-none focus:ring-2 focus:ring-[#8BA888]"
               />
             </div>
@@ -118,10 +118,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <span className="text-[11px] text-[#A09B8E] block mb-1">Short Break</span>
               <input
                 type="number"
-                min="1"
-                max="60"
+                min="2"
+                max="10"
                 value={shortBreakMinutes}
-                onChange={(e) => setShortBreakMinutes(Math.max(1, Number(e.target.value) || 1))}
+                onChange={(e) => setShortBreakMinutes(Math.max(2, Math.min(10, Number(e.target.value) || 2)))}
                 className="w-full px-3 py-1.5 border border-[#E5E0D5] rounded-xl text-center font-semibold text-[#4A4A4A] bg-white focus:outline-none focus:ring-2 focus:ring-[#8BA888]"
               />
             </div>
@@ -131,10 +131,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <span className="text-[11px] text-[#A09B8E] block mb-1">Long Break</span>
               <input
                 type="number"
-                min="1"
-                max="90"
+                min="15"
+                max="25"
                 value={longBreakMinutes}
-                onChange={(e) => setLongBreakMinutes(Math.max(1, Number(e.target.value) || 1))}
+                onChange={(e) => setLongBreakMinutes(Math.max(15, Math.min(25, Number(e.target.value) || 15)))}
                 className="w-full px-3 py-1.5 border border-[#E5E0D5] rounded-xl text-center font-semibold text-[#4A4A4A] bg-white focus:outline-none focus:ring-2 focus:ring-[#8BA888]"
               />
             </div>

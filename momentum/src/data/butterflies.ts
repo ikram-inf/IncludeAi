@@ -111,51 +111,5 @@ export function generateRewardButterfly(goal: string, durationMinutes: number): 
   };
 }
 
-// Initial starter butterflies so the garden feels alive immediately
-export const INITIAL_BUTTERFLIES: Butterfly[] = [
-  {
-    id: 'bf-starter-1',
-    species: 'Emerald Monarch',
-    description: 'A serene forest butterfly known for its vivid emerald shimmer.',
-    rarity: 'Common',
-    primaryColor: '#10B981',
-    secondaryColor: '#34D399',
-    wingPattern: 'monarch',
-    earnedAt: new Date(Date.now() - 86400000).toISOString(),
-    sessionGoal: 'Welcome to Momentum',
-    sessionDuration: 25,
-    x: 25,
-    y: 35,
-    size: 48,
-  },
-  {
-    id: 'bf-starter-2',
-    species: 'Sunburst Swallowtail',
-    description: 'Bright terracotta wings that flutter with high focus energy.',
-    rarity: 'Uncommon',
-    primaryColor: '#E37663',
-    secondaryColor: '#F87171',
-    wingPattern: 'swallowtail',
-    earnedAt: new Date(Date.now() - 43200000).toISOString(),
-    sessionGoal: 'First Focus Sprint',
-    sessionDuration: 25,
-    x: 70,
-    y: 50,
-    size: 52,
-  },
-  {
-    id: 'bf-starter-3',
-    species: 'Azure Blue Morpho',
-    description: 'An enchanting iridescent blue specimen.',
-    rarity: 'Rare',
-    primaryColor: '#2563EB',
-    secondaryColor: '#38BDF8',
-    wingPattern: 'morpho',
-    earnedAt: new Date(Date.now() - 3600000).toISOString(),
-    sessionGoal: 'ADHD Micro-Tasking',
-    sessionDuration: 30,
-    x: 45,
-    y: 65,
-    size: 50,
-  },
-];
+// Start with an empty garden; butterflies are earned through sessions.
+export const INITIAL_BUTTERFLIES: Butterfly[] = [];

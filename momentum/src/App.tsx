@@ -10,7 +10,7 @@ import {
   CompletionChime,
   ParkedThought,
 } from './types';
-import { INITIAL_BUTTERFLIES, generateRewardButterfly } from './data/butterflies';
+import { generateRewardButterfly } from './data/butterflies';
 import { ButterflyVisual } from './components/ButterflyVisual';
 import { RightDock } from './components/RightDock';
 import { PomodoroModal } from './components/PomodoroModal';
@@ -20,18 +20,18 @@ import { ToDoModal } from './components/ToDoModal';
 import { GardenModal } from './components/GardenModal';
 import { SettingsModal } from './components/SettingsModal';
 import { ThoughtParkingLotModal } from './components/ThoughtParkingLotModal';
-import { startAmbientSound, stopAmbientSound, playCompletionChime } from './utils/audioSynth';
+import { startAmbientSound, stopAmbientSound, updateAmbientSoundVolume, playCompletionChime } from './utils/audioSynth';
 
 export default function App() {
   // Navigation & Modal state
-  const [activeModal, setActiveModal] = useState<ActiveModal>('timer');
+  const [activeModal, setActiveModal] = useState<ActiveModal>(null);
 
   // Butterflies & Garden state
-  const [butterflies, setButterflies] = useState<Butterfly[]>(INITIAL_BUTTERFLIES);
+  const [butterflies, setButterflies] = useState<Butterfly[]>([]);
   const [rewardButterfly, setRewardButterfly] = useState<Butterfly | null>(null);
 
   // Focus Timer state
-  const [goal, setGoal] = useState<string>('Deep Focus Session');
+  const [goal, setGoal] = useState<string>('');
   const [durationMinutes, setDurationMinutes] = useState<number>(25);
   const [shortBreakMinutes, setShortBreakMinutes] = useState<number>(5);
   const [longBreakMinutes, setLongBreakMinutes] = useState<number>(15);
@@ -46,22 +46,8 @@ export default function App() {
 
   // AI Chat & Tasks state
   const [initialAIChatPrompt, setInitialAIChatPrompt] = useState<string>('');
-  const [centralInput, setCentralInput] = useState<string>('hi');
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: 't-1',
-      title: 'Outline research paper introduction',
-      estimatedPomodoros: 2,
-      completedPomodoros: 1,
-      completed: false,
-      priority: 'High',
-      microSteps: [
-        { id: 'ms-1', text: 'Open document and write topic sentence', completed: true },
-        { id: 'ms-2', text: 'List 3 bullet points for key arguments', completed: false },
-      ],
-      createdAt: new Date().toISOString(),
-    },
-  ]);
+  const [centralInput, setCentralInput] = useState<string>('');
+  const [tasks, setTasks] = useState<Task[]>([]);
 
   // Audio & Notification Settings
   const [ambientSound, setAmbientSound] = useState<AmbientSound>('none');
@@ -160,6 +146,13 @@ export default function App() {
     return () => {
       stopAmbientSound();
     };
+  }, [ambientSound]);
+
+  // Update ambient volume live without restarting the soundscape
+  useEffect(() => {
+    if (ambientSound !== 'none') {
+      updateAmbientSoundVolume(ambientVolume);
+    }
   }, [ambientSound, ambientVolume]);
 
   // Handle claiming reward butterfly
@@ -308,7 +301,7 @@ export default function App() {
           <p className="text-[9px] uppercase tracking-wider text-[#A09B8E] font-bold">
             Active Focus Goal
           </p>
-          <p className="text-xs font-semibold text-[#4A4A4A]">{goal}</p>
+          <p className="text-xs font-semibold text-[#4A4A4A]">{goal.trim() || 'No active focus goal yet'}</p>
         </div>
         <div className="ml-2 px-2.5 py-1 bg-[#F5F2ED] text-[#8BA888] rounded-lg text-[10px] font-bold">
           {completedSessionsCount} POMOS
