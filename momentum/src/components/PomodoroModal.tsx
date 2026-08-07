@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { X, Play, Pause, RotateCcw, Sparkles } from 'lucide-react';
 import { TimerMode, TimerStatus } from '../types';
 
@@ -53,11 +53,11 @@ export const PomodoroModal: React.FC<PomodoroModalProps> = ({
   const seconds = timeLeftSeconds % 60;
   const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
-  const presets = [10, 15, 25, 45, 60];
+  const presets = [10, 25, 50, 75, 100];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#4A4A4A]/20 backdrop-blur-[2px] transition-all">
-      <div className="relative w-full max-w-lg bg-white rounded-3xl p-8 shadow-2xl shadow-[#4A4A4A]/5 border border-[#E5E0D5] animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-lg bg-white rounded-3xl p-6 sm:p-8 shadow-2xl shadow-[#4A4A4A]/5 border border-[#E5E0D5]">
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -143,11 +143,11 @@ export const PomodoroModal: React.FC<PomodoroModalProps> = ({
               <span>Focus length</span>
               <input
                 type="number"
-                min="1"
-                max="180"
+                min="10"
+                max="100"
                 value={durationMinutes}
                 onChange={(e) => {
-                  const val = Math.max(1, Math.min(180, Number(e.target.value) || 1));
+                  const val = Math.max(10, Math.min(100, Number(e.target.value) || 10));
                   setDurationMinutes(val);
                 }}
                 className="w-16 px-2 py-1 text-center border border-[#E5E0D5] rounded-xl font-medium text-[#4A4A4A] bg-[#FDFCFB] focus:outline-none focus:ring-2 focus:ring-[#8BA888]"
@@ -224,7 +224,7 @@ export const PomodoroModal: React.FC<PomodoroModalProps> = ({
 
           {/* Footnote guidance */}
           <p className="text-xs text-[#A09B8E] max-w-sm leading-relaxed">
-            Choose any focus length from 10 minutes. When time is up, your completed session earns a fluttering butterfly for your sanctuary.
+            Choose a focus length of 10, 25, 50, 75, or 100 minutes. When time is up, your completed session earns a fluttering butterfly for your sanctuary.
           </p>
         </div>
       </div>
