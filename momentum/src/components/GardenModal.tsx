@@ -17,8 +17,12 @@ export const GardenModal: React.FC<GardenModalProps> = ({
 }) => {
   const [selectedButterfly, setSelectedButterfly] = useState<Butterfly | null>(null);
   const [showEncyclopedia, setShowEncyclopedia] = useState(false);
+  // default to the public asset so the garden shows an image (garden.png)
+  const [gardenImage] = useState<string | null>('/garden.png');
 
   if (!isOpen) return null;
+
+  
 
   const rarityBadgeStyles: Record<RarityTier, string> = {
     Common: 'bg-emerald-100 text-emerald-800 border-emerald-300',
@@ -130,6 +134,16 @@ export const GardenModal: React.FC<GardenModalProps> = ({
           <div className="relative flex-1 rounded-2xl bg-gradient-to-b from-[#FDFCFB] via-[#F5F2ED] to-[#E5E0D5]/50 overflow-hidden my-3 border border-[#E5E0D5] shadow-inner">
             {/* Soft decorative background dots */}
             <div className="absolute inset-0 opacity-20 pointer-events-none bg-[radial-gradient(#8BA888_1px,transparent_1px)] [background-size:24px_24px]" />
+
+            {gardenImage && (
+              <img
+                src={gardenImage}
+                alt="Personal garden photo"
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            )}
+
+            {/* Fixed background image — no user choice required */}
 
             {/* Flying Butterflies Canvas Container */}
             <div className="relative w-full h-full p-4">
