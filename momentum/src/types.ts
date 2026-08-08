@@ -1,4 +1,4 @@
-export type ActiveModal = 'timer' | 'todo' | 'chat' | 'garden' | 'settings' | 'parkingLot' | null;
+export type ActiveModal = 'timer' | 'todo' | 'chat' | 'garden' | 'settings' | 'parkingLot' | 'watchAndLearn' | null;
 
 export type TimerMode = 'focus' | 'shortBreak' | 'longBreak';
 
@@ -35,6 +35,7 @@ export interface MicroStep {
   id: string;
   text: string;
   completed: boolean;
+  suggestedMinutes?: number;
 }
 
 export type PriorityLevel = 'High' | 'Medium' | 'Low';

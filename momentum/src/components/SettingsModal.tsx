@@ -70,7 +70,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#4A4A4A]/20 backdrop-blur-[2px] animate-in fade-in duration-200">
       <div className="relative w-full max-w-lg max-h-[88vh] overflow-y-auto bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-[#E5E0D5] animate-in zoom-in-95 duration-200">
-        {/* Header matching Image 2 */}
+        {/* Header */}
         <div className="flex items-start justify-between pb-4 border-b border-[#E5E0D5] mb-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-[#FFF8E7] text-[#D4A373] border border-[#F5E6D3] flex items-center justify-center shadow-sm">
@@ -105,11 +105,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <span className="text-[11px] text-[#A09B8E] block mb-1">Focus</span>
               <input
                 type="number"
-                min="10"
-                max="100"
+                min="1"
+                max="180"
                 value={durationMinutes}
-                onChange={(e) => setDurationMinutes(Math.max(10, Math.min(100, Number(e.target.value) || 10)))}
-                className="w-full px-3 py-1.5 border border-[#E5E0D5] rounded-xl text-center font-semibold text-[#4A4A4A] bg-white focus:outline-none focus:ring-2 focus:ring-[#8BA888]"
+                onChange={(e) => setDurationMinutes(Math.max(1, Number(e.target.value) || 1))}
+                className="w-full px-3 py-1.5 border border-[#E5E0D5] rounded-xl text-center font-semibold text-[#4A4A4A] bg-white focus:outline-none focus:ring-2 focus:ring-[#D99B38]"
               />
             </div>
 
@@ -118,11 +118,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <span className="text-[11px] text-[#A09B8E] block mb-1">Short Break</span>
               <input
                 type="number"
-                min="2"
-                max="10"
+                min="1"
+                max="60"
                 value={shortBreakMinutes}
-                onChange={(e) => setShortBreakMinutes(Math.max(2, Math.min(10, Number(e.target.value) || 2)))}
-                className="w-full px-3 py-1.5 border border-[#E5E0D5] rounded-xl text-center font-semibold text-[#4A4A4A] bg-white focus:outline-none focus:ring-2 focus:ring-[#8BA888]"
+                onChange={(e) => setShortBreakMinutes(Math.max(1, Number(e.target.value) || 1))}
+                className="w-full px-3 py-1.5 border border-[#E5E0D5] rounded-xl text-center font-semibold text-[#4A4A4A] bg-white focus:outline-none focus:ring-2 focus:ring-[#D99B38]"
               />
             </div>
 
@@ -131,11 +131,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <span className="text-[11px] text-[#A09B8E] block mb-1">Long Break</span>
               <input
                 type="number"
-                min="15"
-                max="25"
+                min="1"
+                max="90"
                 value={longBreakMinutes}
-                onChange={(e) => setLongBreakMinutes(Math.max(15, Math.min(25, Number(e.target.value) || 15)))}
-                className="w-full px-3 py-1.5 border border-[#E5E0D5] rounded-xl text-center font-semibold text-[#4A4A4A] bg-white focus:outline-none focus:ring-2 focus:ring-[#8BA888]"
+                onChange={(e) => setLongBreakMinutes(Math.max(1, Number(e.target.value) || 1))}
+                className="w-full px-3 py-1.5 border border-[#E5E0D5] rounded-xl text-center font-semibold text-[#4A4A4A] bg-white focus:outline-none focus:ring-2 focus:ring-[#D99B38]"
               />
             </div>
           </div>
@@ -159,7 +159,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               type="button"
               onClick={() => setAutoStartBreak(!autoStartBreak)}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-                autoStartBreak ? 'bg-[#E8B49B]' : 'bg-[#E5E0D5]'
+                autoStartBreak ? 'bg-[#D99B38]' : 'bg-[#E5E0D5]'
               }`}
             >
               <span
@@ -189,7 +189,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     setCompletionChime(val);
                     playCompletionChime(val, chimeVolume);
                   }}
-                  className="w-full px-3 py-2.5 bg-[#FDFCFB] border border-[#E5E0D5] rounded-2xl text-xs font-medium text-[#4A4A4A] focus:outline-none focus:ring-2 focus:ring-[#8BA888]"
+                  className="w-full px-3 py-2.5 bg-[#FDFCFB] border border-[#E5E0D5] rounded-2xl text-xs font-medium text-[#4A4A4A] focus:outline-none focus:ring-2 focus:ring-[#D99B38]"
                 >
                   <option value="softGong">Soft Tibetan Gong</option>
                   <option value="singingBowl">Resonant Singing Bowl</option>
@@ -201,7 +201,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <button
                     type="button"
                     onClick={() => playCompletionChime(completionChime, chimeVolume)}
-                    className="absolute right-2 p-1 text-[#8BA888] hover:text-[#7A9677]"
+                    className="absolute right-2 p-1 text-[#D99B38] hover:text-[#C58A2B]"
                     title="Test chime"
                   >
                     <Play className="w-3.5 h-3.5 fill-current" />
@@ -216,7 +216,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <select
                 value={ambientSound}
                 onChange={(e) => setAmbientSound(e.target.value as AmbientSound)}
-                className="w-full px-3 py-2.5 bg-[#FDFCFB] border border-[#E5E0D5] rounded-2xl text-xs font-medium text-[#4A4A4A] focus:outline-none focus:ring-2 focus:ring-[#8BA888]"
+                className="w-full px-3 py-2.5 bg-[#FDFCFB] border border-[#E5E0D5] rounded-2xl text-xs font-medium text-[#4A4A4A] focus:outline-none focus:ring-2 focus:ring-[#D99B38]"
               >
                 <option value="none">Off (Silent)</option>
                 <option value="rain">Gentle Rain</option>
@@ -233,7 +233,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <div>
               <div className="flex items-center justify-between text-xs text-[#4A4A4A] font-medium mb-1.5">
                 <span className="flex items-center gap-1.5">
-                  <Volume2 className="w-4 h-4 text-[#8BA888]" />
+                  <Volume2 className="w-4 h-4 text-[#D99B38]" />
                   Chime Volume
                 </span>
                 <span className="text-stone-500">{Math.round(chimeVolume * 100)}%</span>
@@ -245,7 +245,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                 step="0.05"
                 value={chimeVolume}
                 onChange={(e) => setChimeVolume(parseFloat(e.target.value))}
-                className="w-full accent-[#E8B49B] cursor-pointer"
+                className="w-full accent-[#D99B38] cursor-pointer"
               />
             </div>
 
@@ -254,7 +254,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <div className="pt-2 border-t border-[#E5E0D5]/60">
                 <div className="flex items-center justify-between text-xs text-[#4A4A4A] font-medium mb-1.5">
                   <span className="flex items-center gap-1.5">
-                    <Volume2 className="w-4 h-4 text-[#8BA888]" />
+                    <Volume2 className="w-4 h-4 text-[#D99B38]" />
                     Ambient Sound Volume
                   </span>
                   <span className="text-stone-500">{Math.round(ambientVolume * 100)}%</span>
@@ -266,7 +266,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   step="0.05"
                   value={ambientVolume}
                   onChange={(e) => setAmbientVolume(parseFloat(e.target.value))}
-                  className="w-full accent-[#8BA888] cursor-pointer"
+                  className="w-full accent-[#D99B38] cursor-pointer"
                 />
               </div>
             )}
@@ -281,7 +281,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
           <div className="p-4 rounded-2xl bg-[#FDFCFB] border border-[#E5E0D5] flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-[#F5F2ED] text-[#8BA888]">
+              <div className="p-2 rounded-xl bg-[#FAF0D9] text-[#D99B38]">
                 <Bell className="w-4 h-4" />
               </div>
               <div>
@@ -296,7 +296,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               type="button"
               onClick={handleRequestNotificationPermission}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-                notificationsEnabled ? 'bg-[#8BA888]' : 'bg-[#E5E0D5]'
+                notificationsEnabled ? 'bg-[#D99B38]' : 'bg-[#E5E0D5]'
               }`}
             >
               <span
@@ -308,10 +308,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </div>
 
-        {/* Save & Close Button matching Image 2 */}
+        {/* Save & Close Button */}
         <button
           onClick={onClose}
-          className="w-full py-3.5 rounded-2xl bg-[#E8B49B] text-white text-xs font-bold hover:bg-[#d9a388] transition-colors shadow-sm"
+          className="w-full py-3.5 rounded-2xl bg-[#D99B38] text-white text-xs font-bold hover:bg-[#C58A2B] transition-colors shadow-sm"
         >
           Save & Close
         </button>

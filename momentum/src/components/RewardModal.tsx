@@ -23,7 +23,7 @@ export const RewardModal: React.FC<RewardModalProps> = ({ butterfly, onClaim }) 
         particleCount: 80,
         spread: 70,
         origin: { y: 0.6 },
-        colors: ['#E37663', '#10B981', '#38BDF8', '#7C3AED', '#F59E0B'],
+        colors: ['#E37663', '#D99B38', '#38BDF8', '#7C3AED', '#F59E0B'],
       });
     } catch {
       // Ignore if canvas-confetti fails
@@ -31,8 +31,8 @@ export const RewardModal: React.FC<RewardModalProps> = ({ butterfly, onClaim }) 
   }, [butterfly]);
 
   const rarityBadgeStyles = {
-    Common: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-    Uncommon: 'bg-amber-100 text-amber-800 border-amber-300',
+    Common: 'bg-amber-100 text-amber-800 border-amber-300',
+    Uncommon: 'bg-yellow-100 text-yellow-800 border-yellow-300',
     Rare: 'bg-sky-100 text-sky-800 border-sky-300',
     Epic: 'bg-purple-100 text-purple-800 border-purple-300',
     Legendary: 'bg-rose-100 text-rose-800 border-rose-300 animate-pulse',
@@ -42,8 +42,8 @@ export const RewardModal: React.FC<RewardModalProps> = ({ butterfly, onClaim }) 
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#4A4A4A]/20 backdrop-blur-[2px] animate-in fade-in duration-300">
       <div className="relative w-[400px] bg-white rounded-3xl p-10 shadow-2xl border border-[#E5E0D5] text-center overflow-hidden animate-in zoom-in-90 duration-300 flex flex-col items-center">
         {/* Celebration Header */}
-        <span className="text-[10px] uppercase tracking-widest text-[#8BA888] font-bold mb-2 flex items-center gap-1.5">
-          <Sparkles className="w-3.5 h-3.5 text-[#8BA888]" />
+        <span className="text-[10px] uppercase tracking-widest text-[#D99B38] font-bold mb-2 flex items-center gap-1.5">
+          <Sparkles className="w-3.5 h-3.5 text-[#D99B38]" />
           <span>Session Complete</span>
         </span>
 
@@ -58,8 +58,8 @@ export const RewardModal: React.FC<RewardModalProps> = ({ butterfly, onClaim }) 
         {/* Butterfly Animation Container */}
         <div className="relative my-4 py-4 flex items-center justify-center">
           {/* Subtle glow circle behind butterfly */}
-          <div className="w-28 h-28 bg-[#F5F2ED] rounded-full flex items-center justify-center relative">
-            <div className="absolute inset-0 animate-pulse border-2 border-[#8BA888] rounded-full opacity-30" />
+          <div className="w-28 h-28 bg-[#FAF0D9] rounded-full flex items-center justify-center relative">
+            <div className="absolute inset-0 animate-pulse border-2 border-[#D99B38] rounded-full opacity-30" />
             <ButterflyVisual
               primaryColor={butterfly.primaryColor}
               secondaryColor={butterfly.secondaryColor}
@@ -88,7 +88,7 @@ export const RewardModal: React.FC<RewardModalProps> = ({ butterfly, onClaim }) 
         {/* Claim Action Button */}
         <button
           onClick={onClaim}
-          className="w-full py-4 rounded-2xl bg-[#8BA888] hover:bg-[#7A9677] text-white font-bold text-sm transition-all shadow-md flex items-center justify-center gap-2 group active:scale-95"
+          className="w-full py-4 rounded-2xl bg-[#D99B38] hover:bg-[#C58A2B] text-white font-bold text-sm transition-all shadow-md flex items-center justify-center gap-2 group active:scale-95"
         >
           <span>Release into Focus Garden</span>
           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

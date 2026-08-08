@@ -74,6 +74,86 @@ export const BUTTERFLY_SPECIES: SpeciesTemplate[] = [
     secondaryColor: '#06B6D4',
     wingPattern: 'prism',
   },
+  {
+    species: 'Rosewood Drifter',
+    description: 'A gentle wanderer with dusty rose wings, perfect for warming up a study streak.',
+    rarity: 'Common',
+    primaryColor: '#F0A8A0',
+    secondaryColor: '#FBC7C0',
+    wingPattern: 'swallowtail',
+  },
+  {
+    species: 'Meadow Larkwing',
+    description: 'A cheerful yellow-green flutterer often spotted during short, steady focus bursts.',
+    rarity: 'Common',
+    primaryColor: '#84CC16',
+    secondaryColor: '#D9F99D',
+    wingPattern: 'monarch',
+  },
+  {
+    species: 'Coral Driftwing',
+    description: 'Playful coral-toned wings that flicker with the energy of a productive afternoon.',
+    rarity: 'Uncommon',
+    primaryColor: '#FB7185',
+    secondaryColor: '#FDA4AF',
+    wingPattern: 'swallowtail',
+  },
+  {
+    species: 'Teal Lanternmoth',
+    description: 'A cool teal specimen that seems to glow faintly after long evening study sessions.',
+    rarity: 'Uncommon',
+    primaryColor: '#0D9488',
+    secondaryColor: '#5EEAD4',
+    wingPattern: 'monarch',
+  },
+  {
+    species: 'Indigo Nightglow',
+    description: 'Deep indigo wings flecked with silver, drawn out by late-night deep work.',
+    rarity: 'Rare',
+    primaryColor: '#4338CA',
+    secondaryColor: '#A5B4FC',
+    wingPattern: 'morpho',
+  },
+  {
+    species: 'Copper Emberwing',
+    description: 'Fiery copper wings that seem to smolder gently, a sign of a hard-won study win.',
+    rarity: 'Rare',
+    primaryColor: '#C2410C',
+    secondaryColor: '#FDBA74',
+    wingPattern: 'swallowtail',
+  },
+  {
+    species: 'Frostglass Wanderer',
+    description: 'A rare pale-blue specimen with wings like etched glass, earned through icy focus.',
+    rarity: 'Rare',
+    primaryColor: '#7DD3FC',
+    secondaryColor: '#E0F2FE',
+    wingPattern: 'morpho',
+  },
+  {
+    species: 'Orchid Reverie',
+    description: 'Dreamy orchid-purple gradients that shimmer during moments of deep concentration.',
+    rarity: 'Epic',
+    primaryColor: '#9333EA',
+    secondaryColor: '#F0ABFC',
+    wingPattern: 'dream',
+  },
+  {
+    species: 'Solstice Phoenixwing',
+    description: 'An epic sunset-hued specimen said to appear only after a truly focused day.',
+    rarity: 'Epic',
+    primaryColor: '#EA580C',
+    secondaryColor: '#FDE047',
+    wingPattern: 'dream',
+  },
+  {
+    species: 'Aurora Veilwing',
+    description: 'A legendary specimen whose wings ripple like the northern lights across the sky.',
+    rarity: 'Legendary',
+    primaryColor: '#22D3EE',
+    secondaryColor: '#A78BFA',
+    wingPattern: 'prism',
+  },
 ];
 
 export function generateRewardButterfly(goal: string, durationMinutes: number): Butterfly {
@@ -111,5 +191,5 @@ export function generateRewardButterfly(goal: string, durationMinutes: number): 
   };
 }
 
-// Start with an empty garden; butterflies are earned through sessions.
+// Initial starter butterflies - empty so the user starts fresh
 export const INITIAL_BUTTERFLIES: Butterfly[] = [];

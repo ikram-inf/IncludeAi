@@ -3,7 +3,6 @@ import { AmbientSound, CompletionChime } from '../types';
 let audioCtx: AudioContext | null = null;
 let currentNoiseNode: AudioNode | null = null;
 let currentGainNode: GainNode | null = null;
-let currentCleanupToken = 0;
 
 function getAudioContext(): AudioContext {
   if (!audioCtx) {
@@ -107,60 +106,22 @@ export function playCompletionChime(chimeType: CompletionChime = 'softGong', vol
 }
 
 export function stopAmbientSound() {
-  const gainNode = currentGainNode;
-  const noiseNode = currentNoiseNode;
-  const ctx = audioCtx;
-
-  if (!gainNode || !ctx) return;
-
-  const cleanupToken = ++currentCleanupToken;
-
-  try {
-    gainNode.gain.cancelScheduledValues(ctx.currentTime);
-    gainNode.gain.setValueAtTime(Math.max(gainNode.gain.value, 0.001), ctx.currentTime);
-    gainNode.gain.linearRampToValueAtTime(0.001, ctx.currentTime + 0.5);
-  } catch {
-    // Ignore cleanup errors
-  }
-
-  setTimeout(() => {
-    if (cleanupToken !== currentCleanupToken) return;
-
+  if (currentGainNode && audioCtx) {
     try {
-      noiseNode?.disconnect();
+      currentGainNode.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+      setTimeout(() => {
+        if (currentNoiseNode) {
+          currentNoiseNode.disconnect();
+          currentNoiseNode = null;
+        }
+        if (currentGainNode) {
+          currentGainNode.disconnect();
+          currentGainNode = null;
+        }
+      }, 500);
     } catch {
       // Ignore cleanup errors
     }
-
-    try {
-      gainNode.disconnect();
-    } catch {
-      // Ignore cleanup errors
-    }
-
-    if (currentNoiseNode === noiseNode) {
-      currentNoiseNode = null;
-    }
-    if (currentGainNode === gainNode) {
-      currentGainNode = null;
-    }
-  }, 500);
-}
-
-export function updateAmbientSoundVolume(volume: number = 0.3) {
-  if (!currentGainNode || !audioCtx) return;
-
-  const safeVolume = Math.max(0, Math.min(volume, 1));
-
-  try {
-    const now = audioCtx.currentTime;
-    currentGainNode.gain.cancelScheduledValues(now);
-    if (typeof currentGainNode.gain.cancelAndHoldAtTime === 'function') {
-      currentGainNode.gain.cancelAndHoldAtTime(now);
-    }
-    currentGainNode.gain.setValueAtTime(safeVolume, now);
-  } catch {
-    // Ignore volume update errors
   }
 }
 
@@ -172,9 +133,8 @@ export function startAmbientSound(sound: AmbientSound, volume: number = 0.3) {
   try {
     const ctx = getAudioContext();
     const gainNode = ctx.createGain();
-    const safeVolume = Math.max(0, Math.min(volume, 1));
-    gainNode.gain.setValueAtTime(0.0001, ctx.currentTime);
-    gainNode.gain.linearRampToValueAtTime(safeVolume, ctx.currentTime + 0.3);
+    gainNode.gain.setValueAtTime(0.01, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(volume, ctx.currentTime + 1);
 
     if (sound === 'rain' || sound === 'brownNoise') {
       // Pink / Brown Noise generator for Rain or Brown Noise

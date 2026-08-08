@@ -10,8 +10,9 @@ import {
   CompletionChime,
   ParkedThought,
 } from './types';
-import { generateRewardButterfly } from './data/butterflies';
+import { INITIAL_BUTTERFLIES, generateRewardButterfly } from './data/butterflies';
 import { ButterflyVisual } from './components/ButterflyVisual';
+import { FloatingButterfliesCanvas } from './components/FloatingButterfliesCanvas';
 import { RightDock } from './components/RightDock';
 import { PomodoroModal } from './components/PomodoroModal';
 import { RewardModal } from './components/RewardModal';
@@ -20,18 +21,19 @@ import { ToDoModal } from './components/ToDoModal';
 import { GardenModal } from './components/GardenModal';
 import { SettingsModal } from './components/SettingsModal';
 import { ThoughtParkingLotModal } from './components/ThoughtParkingLotModal';
-import { startAmbientSound, stopAmbientSound, updateAmbientSoundVolume, playCompletionChime } from './utils/audioSynth';
+import { WatchAndLearnModal } from './components/WatchAndLearnModal';
+import { startAmbientSound, stopAmbientSound, playCompletionChime } from './utils/audioSynth';
 
 export default function App() {
   // Navigation & Modal state
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
 
   // Butterflies & Garden state
-  const [butterflies, setButterflies] = useState<Butterfly[]>([]);
+  const [butterflies, setButterflies] = useState<Butterfly[]>(INITIAL_BUTTERFLIES);
   const [rewardButterfly, setRewardButterfly] = useState<Butterfly | null>(null);
 
   // Focus Timer state
-  const [goal, setGoal] = useState<string>('');
+  const [goal, setGoal] = useState<string>('Deep Focus Session');
   const [durationMinutes, setDurationMinutes] = useState<number>(25);
   const [shortBreakMinutes, setShortBreakMinutes] = useState<number>(5);
   const [longBreakMinutes, setLongBreakMinutes] = useState<number>(15);
@@ -47,7 +49,41 @@ export default function App() {
   // AI Chat & Tasks state
   const [initialAIChatPrompt, setInitialAIChatPrompt] = useState<string>('');
   const [centralInput, setCentralInput] = useState<string>('');
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([
+    {
+      id: 't-1',
+      title: 'Outline research paper introduction',
+      estimatedPomodoros: 2,
+      completedPomodoros: 1,
+      completed: false,
+      priority: 'High',
+      microSteps: [
+        { id: 'ms-1', text: 'Study overview & write topic sentence (10 min)', completed: true, suggestedMinutes: 10 },
+        { id: 'ms-2', text: 'Draft 3 bullet points for key arguments (15 min)', completed: false, suggestedMinutes: 15 },
+      ],
+      createdAt: new Date().toISOString(),
+    },
+    {
+      id: 't-2',
+      title: 'Review key formulas and chapter summary',
+      estimatedPomodoros: 1,
+      completedPomodoros: 0,
+      completed: false,
+      priority: 'Medium',
+      microSteps: [],
+      createdAt: new Date(Date.now() - 10000).toISOString(),
+    },
+    {
+      id: 't-3',
+      title: 'Organize study desk & archive old pdfs',
+      estimatedPomodoros: 1,
+      completedPomodoros: 0,
+      completed: false,
+      priority: 'Low',
+      microSteps: [],
+      createdAt: new Date(Date.now() - 20000).toISOString(),
+    },
+  ]);
 
   // Audio & Notification Settings
   const [ambientSound, setAmbientSound] = useState<AmbientSound>('none');
@@ -74,6 +110,20 @@ export default function App() {
     setParkedThoughts((prev) => prev.filter((t) => t.id !== id));
   };
 
+  const handleOrganizeDistractionIntoTask = (newTask: Task) => {
+    setTasks((prev) => [newTask, ...prev]);
+    setActiveModal('todo');
+  };
+
+  const handleStartTimerForStep = (stepGoalTitle: string, stepDurationMinutes: number) => {
+    setGoal(stepGoalTitle);
+    setDurationMinutes(stepDurationMinutes);
+    setTimeLeftSeconds(stepDurationMinutes * 60);
+    setTimerMode('focus');
+    setTimerStatus('running');
+    setActiveModal('timer');
+  };
+
   // Timer Countdown Effect
   useEffect(() => {
     let interval: any = null;
@@ -89,25 +139,28 @@ export default function App() {
       // Play Chime
       playCompletionChime(completionChime, chimeVolume);
 
-      // Desktop Notification if enabled
-      if (notificationsEnabled && 'Notification' in window && Notification.permission === 'granted') {
-        new Notification(
-          timerMode === 'focus' ? 'Focus Session Complete! 🦋' : 'Break Time Ended! 🌿',
-          {
-            body:
-              timerMode === 'focus'
-                ? `Great job focusing on "${goal}"! Unlocked a new specimen for your garden.`
-                : 'Ready to dive back into your next focus session?',
-          }
-        );
-      }
-
       if (timerMode === 'focus') {
-        // Earn Reward Butterfly
+        // Earn Reward Butterfly first, so we know its name before announcing it
         const earned = generateRewardButterfly(goal, durationMinutes);
         setRewardButterfly(earned);
         setCompletedSessionsCount((c) => c + 1);
+
+        // Desktop Notification if enabled - now correctly names the earned butterfly
+        if (notificationsEnabled && 'Notification' in window && Notification.permission === 'granted') {
+          new Notification(
+            `New Butterfly Earned: ${earned.species}! 🦋`,
+            {
+              body: `Great job focusing on "${goal}"! You unlocked a ${earned.rarity} "${earned.species}" for your garden.`,
+            }
+          );
+        }
       } else {
+        // Desktop Notification for break completion
+        if (notificationsEnabled && 'Notification' in window && Notification.permission === 'granted') {
+          new Notification('Break Time Ended! 🌿', {
+            body: 'Ready to dive back into your next focus session?',
+          });
+        }
         // Break completed, switch back to focus
         setTimerMode('focus');
         setTimeLeftSeconds(durationMinutes * 60);
@@ -136,47 +189,16 @@ export default function App() {
     }
   }, [durationMinutes, shortBreakMinutes, longBreakMinutes, timerMode, timerStatus]);
 
-  // Sync ambient sound generator
+  // Sync Ambient Audio state
   useEffect(() => {
     if (ambientSound !== 'none') {
       startAmbientSound(ambientSound, ambientVolume);
     } else {
       stopAmbientSound();
     }
-    return () => {
-      stopAmbientSound();
-    };
-  }, [ambientSound]);
-
-  // Update ambient volume live without restarting the soundscape
-  useEffect(() => {
-    if (ambientSound !== 'none') {
-      updateAmbientSoundVolume(ambientVolume);
-    }
   }, [ambientSound, ambientVolume]);
 
-  // Handle claiming reward butterfly
-  const handleClaimReward = () => {
-    if (rewardButterfly) {
-      setButterflies((prev) => [rewardButterfly, ...prev]);
-      setRewardButterfly(null);
-
-      // Auto start break if enabled
-      if (autoStartBreak) {
-        const nextBreakMode = completedSessionsCount % 4 === 0 ? 'longBreak' : 'shortBreak';
-        const breakMins = nextBreakMode === 'longBreak' ? longBreakMinutes : shortBreakMinutes;
-        setTimerMode(nextBreakMode);
-        setTimeLeftSeconds(breakMins * 60);
-        setTimerStatus('running');
-      } else {
-        setTimerMode('focus');
-        setTimeLeftSeconds(durationMinutes * 60);
-        setTimerStatus('idle');
-      }
-    }
-  };
-
-  // Timer controls
+  // Timer Control Handlers
   const handleStartTimer = () => setTimerStatus('running');
   const handlePauseTimer = () => setTimerStatus('paused');
   const handleResetTimer = () => {
@@ -184,6 +206,12 @@ export default function App() {
     if (timerMode === 'focus') setTimeLeftSeconds(durationMinutes * 60);
     else if (timerMode === 'shortBreak') setTimeLeftSeconds(shortBreakMinutes * 60);
     else if (timerMode === 'longBreak') setTimeLeftSeconds(longBreakMinutes * 60);
+  };
+
+  const handleClaimReward = (claimedButterfly: Butterfly) => {
+    setButterflies((prev) => [claimedButterfly, ...prev]);
+    setRewardButterfly(null);
+    setActiveModal('garden');
   };
 
   const handleModeChange = (mode: TimerMode) => {
@@ -209,16 +237,21 @@ export default function App() {
   };
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-[#F5F2ED] select-none font-sans text-[#4A4A4A]">
-      {/* Background Soft Garden Glow Spots */}
-      <div className="absolute inset-0 opacity-20 pointer-events-none">
-        <div className="absolute top-20 left-40 w-32 h-32 bg-[#8BA888] rounded-full blur-3xl" />
-        <div className="absolute bottom-40 right-60 w-48 h-48 bg-[#D4A373] rounded-full blur-3xl" />
-      </div>
+    <div className="relative w-screen h-screen overflow-hidden bg-[#FAF6EE] select-none font-sans text-[#4A4A4A]">
+      
+      {/* Background Soft Curved Concentric Ring Visual (Matching User Reference Image) */}
+      <div className="absolute top-1/2 -right-32 sm:-right-16 -translate-y-1/2 w-[600px] h-[600px] sm:w-[750px] sm:h-[750px] rounded-full border-[30px] border-[#F2EDE2] pointer-events-none opacity-60 z-0" />
+      <div className="absolute top-1/2 -right-48 sm:-right-28 -translate-y-1/2 w-[750px] h-[750px] sm:w-[900px] sm:h-[900px] rounded-full border-[18px] border-[#ECE6D8] pointer-events-none opacity-40 z-0" />
 
-      {/* Top Left Daily Progress Badge */}
+      {/* Freely Roaming Butterflies Background Canvas */}
+      <FloatingButterfliesCanvas
+        butterflies={butterflies}
+        onSelectButterfly={() => setActiveModal('garden')}
+      />
+
+      {/* Top Left Sanctuary Progress Badge */}
       <div className="absolute top-8 left-10 z-20 flex items-center gap-3 bg-white/80 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-[#E5E0D5] shadow-sm">
-        <div className="w-7 h-7 flex items-center justify-center bg-[#8BA888] rounded-full text-white text-xs font-bold">
+        <div className="w-7 h-7 flex items-center justify-center bg-[#D99B38] rounded-full text-white text-xs font-bold">
           🦋
         </div>
         <div className="flex flex-col">
@@ -231,43 +264,19 @@ export default function App() {
         </div>
       </div>
 
-      {/* Main Sanctuary Flying Butterflies Background Canvas */}
-      <div className="absolute inset-0 pointer-events-auto overflow-hidden">
-        {butterflies.map((bf) => (
-          <div
-            key={bf.id}
-            onClick={() => setActiveModal('garden')}
-            className="absolute cursor-pointer transition-transform duration-1000 hover:scale-125 z-0"
-            style={{
-              left: `${bf.x}%`,
-              top: `${bf.y}%`,
-            }}
-            title={`Click to view ${bf.species} in garden`}
-          >
-            <ButterflyVisual
-              primaryColor={bf.primaryColor}
-              secondaryColor={bf.secondaryColor}
-              size={bf.size || 52}
-              wingPattern={bf.wingPattern}
-              isFlapping={true}
-            />
-          </div>
-        ))}
-      </div>
-
-      {/* Central Background Resting View */}
+      {/* Central Resting View */}
       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-0">
         {/* Large Display Title */}
-        <h1 className="text-7xl sm:text-8xl md:text-9xl font-light text-[#8BA888] tracking-wider mb-8 opacity-90 select-none">
+        <h1 className="text-7xl sm:text-8xl md:text-9xl font-serif font-light text-[#A29381] tracking-wide mb-8 opacity-90 select-none">
           Momentum
         </h1>
 
-        {/* Central Search / AI Prompt Capsule Bar */}
+        {/* Central Search Bar with Video Icon Button */}
         <form
           onSubmit={handleCentralSubmit}
-          className="pointer-events-auto flex items-center gap-3 bg-[#FDFCFB] backdrop-blur-md rounded-full px-6 py-3.5 shadow-xl shadow-[#8BA888]/10 border border-[#E5E0D5] w-full max-w-md transition-all hover:shadow-2xl hover:border-[#8BA888]"
+          className="pointer-events-auto flex items-center gap-3 bg-[#FDFCFB] backdrop-blur-md rounded-full px-6 py-3 shadow-lg shadow-[#A29381]/10 border border-[#E5E0D5] w-full max-w-md transition-all hover:shadow-xl hover:border-[#D99B38]"
         >
-          <Sparkles className="w-5 h-5 text-[#8BA888]" />
+          <Sparkles className="w-5 h-5 text-[#D99B38]" />
           <input
             type="text"
             value={centralInput}
@@ -276,11 +285,12 @@ export default function App() {
             className="flex-1 bg-transparent text-[#4A4A4A] placeholder-[#A09B8E] text-sm focus:outline-none"
           />
           <button
-            type="submit"
-            className="p-1.5 rounded-full text-[#A09B8E] hover:text-[#4A4A4A] hover:bg-[#F5F2ED] transition-colors"
-            title="Ask AI"
+            type="button"
+            onClick={() => setActiveModal('watchAndLearn')}
+            className="p-2 rounded-full text-[#A09B8E] hover:text-rose-600 hover:bg-rose-50 transition-colors"
+            title="Watch and Learn (YouTube Educational Channels)"
           >
-            <Video className="w-5 h-5 stroke-[1.8]" />
+            <Video className="w-5 h-5 stroke-[2]" />
           </button>
         </form>
 
@@ -289,26 +299,26 @@ export default function App() {
           onClick={() => setActiveModal('garden')}
           className="pointer-events-auto mt-6 px-4 py-2 rounded-full bg-[#FDFCFB] hover:bg-white text-[#4A4A4A] text-xs font-medium border border-[#E5E0D5] shadow-sm flex items-center gap-2 transition-all hover:scale-105"
         >
-          <Flower2 className="w-4 h-4 text-[#8BA888]" />
-          <span>{butterflies.length} Butterflies Flying in Garden</span>
+          <Flower2 className="w-4 h-4 text-[#D99B38]" />
+          <span>{butterflies.length} Butterflies Flying in Meadow</span>
         </button>
       </div>
 
       {/* Bottom Left Active Goal Badge */}
       <div className="absolute bottom-8 left-10 z-20 p-4 bg-[#FDFCFB] border border-[#E5E0D5] rounded-2xl flex items-center gap-4 shadow-sm">
-        <div className="w-2 h-9 bg-[#8BA888] rounded-full" />
+        <div className="w-2 h-9 bg-[#D99B38] rounded-full" />
         <div>
           <p className="text-[9px] uppercase tracking-wider text-[#A09B8E] font-bold">
             Active Focus Goal
           </p>
-          <p className="text-xs font-semibold text-[#4A4A4A]">{goal.trim() || 'No active focus goal yet'}</p>
+          <p className="text-xs font-semibold text-[#4A4A4A]">{goal}</p>
         </div>
-        <div className="ml-2 px-2.5 py-1 bg-[#F5F2ED] text-[#8BA888] rounded-lg text-[10px] font-bold">
-          {completedSessionsCount} POMOS
+        <div className="ml-2 px-2.5 py-1 bg-[#FAF0D9] text-[#D99B38] rounded-lg text-[10px] font-bold">
+          {completedSessionsCount} Sessions
         </div>
       </div>
 
-      {/* Floating Modals */}
+      {/* Modals */}
       <PomodoroModal
         isOpen={activeModal === 'timer'}
         onClose={() => setActiveModal(null)}
@@ -341,6 +351,7 @@ export default function App() {
           setGoal(goalTitle);
           setActiveModal('timer');
         }}
+        onStartTimerForStep={handleStartTimerForStep}
       />
 
       <ThoughtParkingLotModal
@@ -350,18 +361,26 @@ export default function App() {
         onAddThought={handleAddParkedThought}
         onToggleThought={handleToggleParkedThought}
         onDeleteThought={handleDeleteParkedThought}
+        onOrganizeDistractionIntoTask={handleOrganizeDistractionIntoTask}
       />
 
       <AIChatModal
         isOpen={activeModal === 'chat'}
         onClose={() => setActiveModal(null)}
         initialPrompt={initialAIChatPrompt}
+        onOpenWatchAndLearn={() => setActiveModal('watchAndLearn')}
       />
 
       <GardenModal
         isOpen={activeModal === 'garden'}
         onClose={() => setActiveModal(null)}
         butterflies={butterflies}
+      />
+
+      <WatchAndLearnModal
+        isOpen={activeModal === 'watchAndLearn'}
+        onClose={() => setActiveModal(null)}
+        initialSearchQuery={centralInput}
       />
 
       <SettingsModal
@@ -387,10 +406,10 @@ export default function App() {
         setNotificationsEnabled={setNotificationsEnabled}
       />
 
-      {/* Pop-Up Butterfly Reward Modal when session finishes */}
+      {/* Pop-Up Butterfly Reward Modal */}
       <RewardModal butterfly={rewardButterfly} onClaim={handleClaimReward} />
 
-      {/* Right-Side Circular Navigation Dock */}
+      {/* Right-Side Navigation Dock */}
       <RightDock
         activeModal={activeModal}
         setActiveModal={setActiveModal}

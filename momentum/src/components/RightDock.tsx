@@ -68,7 +68,7 @@ export const RightDock: React.FC<RightDockProps> = ({
               onClick={() => setActiveModal(isActive ? null : item.id)}
               className={`relative w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 shadow-md ${
                 isActive
-                  ? 'bg-[#8BA888] text-white shadow-lg shadow-[#8BA888]/25 scale-110'
+                  ? 'bg-[#D99B38] text-white shadow-lg shadow-[#D99B38]/25 scale-110'
                   : 'bg-[#FDFCFB] text-[#A09B8E] hover:text-[#4A4A4A] hover:bg-[#F5F2ED] border border-[#E5E0D5] hover:scale-105'
               }`}
               aria-label={item.label}
