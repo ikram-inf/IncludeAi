@@ -11,9 +11,9 @@ interface RewardModalProps {
 }
 
 export const RewardModal: React.FC<RewardModalProps> = ({ butterfly, onClaim }) => {
-  if (!butterfly) return null;
-
   useEffect(() => {
+    if (!butterfly) return;
+
     // Play completion chime
     playCompletionChime();
 
@@ -29,6 +29,8 @@ export const RewardModal: React.FC<RewardModalProps> = ({ butterfly, onClaim }) 
       // Ignore if canvas-confetti fails
     }
   }, [butterfly]);
+
+  if (!butterfly) return null;
 
   const rarityBadgeStyles = {
     Common: 'bg-amber-100 text-amber-800 border-amber-300',

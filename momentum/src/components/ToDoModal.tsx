@@ -25,6 +25,7 @@ export const ToDoModal: React.FC<ToDoModalProps> = ({
   const [loadingStepTaskId, setLoadingStepTaskId] = useState<string | null>(null);
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
+  const [newStepText, setNewStepText] = useState<{ [taskId: string]: string }>({});
 
   if (!isOpen) return null;
 
@@ -58,8 +59,16 @@ export const ToDoModal: React.FC<ToDoModalProps> = ({
     setTasks((prev) => prev.filter((t) => t.id !== taskId));
   };
 
-  const handleGenerateMicroSteps = async (task: Task) => {
+  const handleGenerateMicroSteps = async (task: Task, forceRegenerate = false) => {
+    // If steps already exist and not forcing regenerate, toggle expansion
+    if (!forceRegenerate && task.microSteps && task.microSteps.length > 0) {
+      setExpandedTaskId(expandedTaskId === task.id ? null : task.id);
+      return;
+    }
+
     setLoadingStepTaskId(task.id);
+    let stepsToSet: MicroStep[] = [];
+
     try {
       const res = await fetch('/api/microsteps', {
         method: 'POST',
@@ -67,42 +76,58 @@ export const ToDoModal: React.FC<ToDoModalProps> = ({
         body: JSON.stringify({ taskTitle: task.title }),
       });
 
-      const contentType = res.headers.get('content-type');
-      if (!res.ok || !contentType || !contentType.includes('application/json')) {
-        throw new Error(`Server returned status ${res.status}`);
-      }
-
-      const data = await res.json();
-      if (data.steps && Array.isArray(data.steps)) {
-        const generatedSteps: MicroStep[] = data.steps.map((item: any, idx: number) => {
-          if (typeof item === 'string') {
-            return {
-              id: `step-${Date.now()}-${idx}`,
-              text: item,
-              completed: false,
-              suggestedMinutes: 10,
-            };
-          }
-          return {
+      if (res.ok) {
+        const data = await res.json();
+        if (data.steps && Array.isArray(data.steps)) {
+          stepsToSet = data.steps.map((item: any, idx: number) => ({
             id: `step-${Date.now()}-${idx}`,
-            text: item.text || item.title || 'Study step',
+            text: typeof item === 'string' ? item : (item.text || item.title || 'Focus micro-step'),
             completed: false,
-            suggestedMinutes: item.suggestedMinutes || 10,
-          };
-        });
-
-        setTasks((prev) =>
-          prev.map((t) =>
-            t.id === task.id ? { ...t, microSteps: generatedSteps } : t
-          )
-        );
-        setExpandedTaskId(task.id);
+            suggestedMinutes: typeof item === 'object' && item.suggestedMinutes ? item.suggestedMinutes : 10,
+          }));
+        }
       }
     } catch (e) {
-      console.error('Failed to generate micro-steps:', e);
-    } finally {
-      setLoadingStepTaskId(null);
+      console.warn('Microsteps API call fallback engaged:', e);
     }
+
+    // Fallback if API returned empty or failed
+    if (stepsToSet.length === 0) {
+      stepsToSet = [
+        { id: `step-${Date.now()}-1`, text: `Outline goals & gather materials for "${task.title}"`, completed: false, suggestedMinutes: 10 },
+        { id: `step-${Date.now()}-2`, text: `Deep focus sprint on core part of task`, completed: false, suggestedMinutes: 15 },
+        { id: `step-${Date.now()}-3`, text: `Review output, refine details & finalize`, completed: false, suggestedMinutes: 10 },
+      ];
+    }
+
+    setTasks((prev) =>
+      prev.map((t) => (t.id === task.id ? { ...t, microSteps: stepsToSet } : t))
+    );
+    setExpandedTaskId(task.id);
+    setLoadingStepTaskId(null);
+  };
+
+  const handleAddCustomStep = (taskId: string) => {
+    const text = newStepText[taskId]?.trim();
+    if (!text) return;
+
+    const newStep: MicroStep = {
+      id: `step-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      text,
+      completed: false,
+      suggestedMinutes: 10,
+    };
+
+    setTasks((prev) =>
+      prev.map((t) =>
+        t.id === taskId
+          ? { ...t, microSteps: [...(t.microSteps || []), newStep] }
+          : t
+      )
+    );
+
+    setNewStepText((prev) => ({ ...prev, [taskId]: '' }));
+    setExpandedTaskId(taskId);
   };
 
   const toggleMicroStep = (taskId: string, stepId: string) => {
@@ -341,28 +366,39 @@ export const ToDoModal: React.FC<ToDoModalProps> = ({
                   </div>
 
                   {/* Micro Steps Accordion with Step-by-Step Learning Guidance & Auto Timer */}
-                  {task.microSteps && task.microSteps.length > 0 && (
+                  {((task.microSteps && task.microSteps.length > 0) || isExpanded) && (
                     <div className="mt-3 pt-3 border-t border-[#E5E0D5]">
-                      <button
-                        onClick={() =>
-                          setExpandedTaskId(isExpanded ? null : task.id)
-                        }
-                        className="flex items-center gap-1 text-xs font-semibold text-[#D99B38] mb-2"
-                      >
-                        <span>
-                          Step-by-Step Guidance ({task.microSteps.filter((s) => s.completed).length}/
-                          {task.microSteps.length})
-                        </span>
-                        {isExpanded ? (
-                          <ChevronUp className="w-3.5 h-3.5" />
-                        ) : (
-                          <ChevronDown className="w-3.5 h-3.5" />
+                      <div className="flex items-center justify-between mb-2">
+                        <button
+                          onClick={() => setExpandedTaskId(isExpanded ? null : task.id)}
+                          className="flex items-center gap-1 text-xs font-semibold text-[#D99B38]"
+                        >
+                          <span>
+                            Step-by-Step Guidance ({task.microSteps ? task.microSteps.filter((s) => s.completed).length : 0}/
+                            {task.microSteps ? task.microSteps.length : 0})
+                          </span>
+                          {isExpanded ? (
+                            <ChevronUp className="w-3.5 h-3.5" />
+                          ) : (
+                            <ChevronDown className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+
+                        {isExpanded && (
+                          <button
+                            onClick={() => handleGenerateMicroSteps(task, true)}
+                            disabled={isStepLoading}
+                            className="text-[11px] font-medium text-[#A09B8E] hover:text-[#D99B38] flex items-center gap-1"
+                          >
+                            <Sparkles className="w-3 h-3" />
+                            <span>Regenerate</span>
+                          </button>
                         )}
-                      </button>
+                      </div>
 
                       {isExpanded && (
                         <div className="space-y-2 pl-1">
-                          {task.microSteps.map((step) => {
+                          {task.microSteps && task.microSteps.map((step) => {
                             const min = step.suggestedMinutes || 10;
                             return (
                               <div
@@ -401,6 +437,32 @@ export const ToDoModal: React.FC<ToDoModalProps> = ({
                               </div>
                             );
                           })}
+
+                          {/* Inline Add Custom Micro-step */}
+                          <div className="flex items-center gap-1.5 pt-1">
+                            <input
+                              type="text"
+                              value={newStepText[task.id] || ''}
+                              onChange={(e) =>
+                                setNewStepText((prev) => ({ ...prev, [task.id]: e.target.value }))
+                              }
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  e.preventDefault();
+                                  handleAddCustomStep(task.id);
+                                }
+                              }}
+                              placeholder="Add custom micro-step..."
+                              className="flex-1 px-3 py-1.5 rounded-xl border border-[#E5E0D5] bg-white text-xs text-[#4A4A4A] focus:outline-none focus:ring-1 focus:ring-[#D99B38]"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleAddCustomStep(task.id)}
+                              className="px-2.5 py-1.5 rounded-xl bg-[#E5E0D5] text-[#4A4A4A] text-xs font-semibold hover:bg-[#D4A373] hover:text-white transition-colors"
+                            >
+                              Add
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>

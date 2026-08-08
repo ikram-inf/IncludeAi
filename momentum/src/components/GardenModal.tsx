@@ -154,7 +154,7 @@ export const GardenModal: React.FC<GardenModalProps> = ({
 
                   return (
                     <div
-                      key={bf.id}
+                      key={bf.id ? `${bf.id}-${idx}` : `bf-meadow-${idx}`}
                       onClick={() => setSelectedButterfly(bf)}
                       title={`${bf.species} (${bf.rarity})`}
                       className="absolute cursor-pointer transition-transform hover:scale-130 group hover:z-[9999]"
@@ -204,9 +204,9 @@ export const GardenModal: React.FC<GardenModalProps> = ({
           {/* TAB 2: EARNED SPECIMENS GRID */}
           {activeTab === 'specimens' && (
             <div className="h-full overflow-y-auto pr-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-              {filteredButterflies.map((bf) => (
+              {filteredButterflies.map((bf, idx) => (
                 <div
-                  key={bf.id}
+                  key={bf.id ? `${bf.id}-${idx}` : `bf-grid-${idx}`}
                   onClick={() => setSelectedButterfly(bf)}
                   className="p-4 rounded-2xl border border-[#E5E0D5] bg-white shadow-sm hover:border-[#D99B38] hover:shadow-md transition-all cursor-pointer flex flex-col items-center text-center group"
                 >
@@ -279,55 +279,90 @@ export const GardenModal: React.FC<GardenModalProps> = ({
 
           {/* TAB 4: SPECIES ENCYCLOPEDIA */}
           {activeTab === 'encyclopedia' && (
-            <div className="h-full overflow-y-auto pr-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {BUTTERFLY_SPECIES.map((spec, idx) => {
-                const isUnlocked = butterflies.some((b) => b.species === spec.species);
-                const count = butterflies.filter((b) => b.species === spec.species).length;
-
-                return (
-                  <div
-                    key={idx}
-                    className={`p-3 rounded-2xl border flex items-center gap-3 transition-all ${
-                      isUnlocked
-                        ? 'bg-white border-[#E5E0D5] shadow-sm'
-                        : 'bg-[#FAF6EE]/60 border-[#E5E0D5]/70 opacity-60'
-                    }`}
+            <div className="h-full flex flex-col overflow-hidden">
+              <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#E5E0D5]/80">
+                <p className="text-xs text-[#7A6A5E]">
+                  Discover all {BUTTERFLY_SPECIES.length} focus species in your sanctuary dictionary:
+                </p>
+                <div className="flex items-center gap-1.5 text-xs text-[#A09B8E]">
+                  <Filter className="w-3.5 h-3.5" />
+                  <select
+                    value={rarityFilter}
+                    onChange={(e) => setRarityFilter(e.target.value)}
+                    className="bg-white border border-[#E5E0D5] rounded-xl px-2.5 py-1 text-xs text-[#4A4A4A] focus:outline-none"
                   >
-                    <ButterflyVisual
-                      primaryColor={isUnlocked ? spec.primaryColor : '#A3A3A3'}
-                      secondaryColor={isUnlocked ? spec.secondaryColor : '#D4D4D4'}
-                      size={44}
-                      wingPattern={spec.wingPattern}
-                      isFlapping={isUnlocked}
-                    />
+                    <option value="all">All Rarities</option>
+                    <option value="common">Common</option>
+                    <option value="uncommon">Uncommon</option>
+                    <option value="rare">Rare</option>
+                    <option value="epic">Epic</option>
+                    <option value="legendary">Legendary</option>
+                  </select>
+                </div>
+              </div>
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h5 className="text-xs font-bold text-[#4A4A4A] truncate">
-                          {isUnlocked ? spec.species : '??? Discovered via Focus'}
-                        </h5>
-                        <span
-                          className={`text-[9px] font-bold px-1.5 py-0.2 rounded-full border ${
-                            rarityBadgeStyles[spec.rarity]
-                          }`}
-                        >
-                          {spec.rarity}
-                        </span>
+              <div className="flex-1 overflow-y-auto pr-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {BUTTERFLY_SPECIES.filter(s => rarityFilter === 'all' || s.rarity.toLowerCase() === rarityFilter.toLowerCase()).map((spec, idx) => {
+                  const isUnlocked = butterflies.some((b) => b.species === spec.species);
+                  const count = butterflies.filter((b) => b.species === spec.species).length;
+
+                  return (
+                    <div
+                      key={idx}
+                      className={`p-3.5 rounded-2xl border flex items-start gap-3 transition-all ${
+                        isUnlocked
+                          ? 'bg-white border-[#E5E0D5] shadow-sm hover:border-[#D99B38]'
+                          : 'bg-[#FAF6EE]/80 border-[#E5E0D5]/70 opacity-80'
+                      }`}
+                    >
+                      <div className="pt-0.5">
+                        <ButterflyVisual
+                          primaryColor={isUnlocked ? spec.primaryColor : '#A3A3A3'}
+                          secondaryColor={isUnlocked ? spec.secondaryColor : '#D4D4D4'}
+                          size={48}
+                          wingPattern={spec.wingPattern}
+                          isFlapping={isUnlocked}
+                        />
                       </div>
 
-                      <p className="text-[10px] text-[#A09B8E] line-clamp-2 mt-0.5">
-                        {isUnlocked ? spec.description : 'Complete focus sessions to reveal this species.'}
-                      </p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-1 mb-1">
+                          <h5 className="text-xs font-bold text-[#4A4A4A] truncate">
+                            {spec.species}
+                          </h5>
+                          <span
+                            className={`text-[9px] font-bold px-2 py-0.5 rounded-full border whitespace-nowrap ${
+                              rarityBadgeStyles[spec.rarity]
+                            }`}
+                          >
+                            {spec.rarity}
+                          </span>
+                        </div>
 
-                      {isUnlocked && (
-                        <span className="text-[10px] font-bold text-[#D99B38] mt-1 block">
-                          Collected: {count}
-                        </span>
-                      )}
+                        <p className="text-[11px] text-[#A09B8E] line-clamp-2 leading-tight mb-1.5">
+                          {spec.description}
+                        </p>
+
+                        {isUnlocked ? (
+                          <div className="flex items-center justify-between pt-1 border-t border-[#E5E0D5]/60 text-[10px]">
+                            <span className="text-emerald-700 font-semibold flex items-center gap-1">
+                              ✓ Unlocked
+                            </span>
+                            <span className="font-bold text-[#D99B38]">
+                              Collected: {count}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="pt-1 border-t border-[#E5E0D5]/60 text-[10px] text-[#D99B38]">
+                            <span className="font-semibold">How to discover:</span>{' '}
+                            <span className="text-[#7A6A5E]">{spec.discoveryHint || 'Complete focus sessions to attract this species.'}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           )}
         </div>

@@ -49,41 +49,7 @@ export default function App() {
   // AI Chat & Tasks state
   const [initialAIChatPrompt, setInitialAIChatPrompt] = useState<string>('');
   const [centralInput, setCentralInput] = useState<string>('');
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: 't-1',
-      title: 'Outline research paper introduction',
-      estimatedPomodoros: 2,
-      completedPomodoros: 1,
-      completed: false,
-      priority: 'High',
-      microSteps: [
-        { id: 'ms-1', text: 'Study overview & write topic sentence (10 min)', completed: true, suggestedMinutes: 10 },
-        { id: 'ms-2', text: 'Draft 3 bullet points for key arguments (15 min)', completed: false, suggestedMinutes: 15 },
-      ],
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: 't-2',
-      title: 'Review key formulas and chapter summary',
-      estimatedPomodoros: 1,
-      completedPomodoros: 0,
-      completed: false,
-      priority: 'Medium',
-      microSteps: [],
-      createdAt: new Date(Date.now() - 10000).toISOString(),
-    },
-    {
-      id: 't-3',
-      title: 'Organize study desk & archive old pdfs',
-      estimatedPomodoros: 1,
-      completedPomodoros: 0,
-      completed: false,
-      priority: 'Low',
-      microSteps: [],
-      createdAt: new Date(Date.now() - 20000).toISOString(),
-    },
-  ]);
+  const [tasks, setTasks] = useState<Task[]>([]);
 
   // Audio & Notification Settings
   const [ambientSound, setAmbientSound] = useState<AmbientSound>('none');
@@ -124,7 +90,7 @@ export default function App() {
     setActiveModal('timer');
   };
 
-  // Timer Countdown Effect
+  // Timer Countdown Effect - Fixed to prevent getting stuck at 00:00:00
   useEffect(() => {
     let interval: any = null;
 
@@ -132,36 +98,41 @@ export default function App() {
       interval = setInterval(() => {
         setTimeLeftSeconds((prev) => prev - 1);
       }, 1000);
-    } else if (timerStatus === 'running' && timeLeftSeconds === 0) {
+    } else if (timerStatus === 'running' && timeLeftSeconds <= 0) {
       // Session Complete!
-      setTimerStatus('completed');
-
-      // Play Chime
       playCompletionChime(completionChime, chimeVolume);
 
       if (timerMode === 'focus') {
-        // Earn Reward Butterfly first, so we know its name before announcing it
+        // Earn Reward Butterfly
         const earned = generateRewardButterfly(goal, durationMinutes);
         setRewardButterfly(earned);
         setCompletedSessionsCount((c) => c + 1);
 
-        // Desktop Notification if enabled - now correctly names the earned butterfly
         if (notificationsEnabled && 'Notification' in window && Notification.permission === 'granted') {
-          new Notification(
-            `New Butterfly Earned: ${earned.species}! 🦋`,
-            {
-              body: `Great job focusing on "${goal}"! You unlocked a ${earned.rarity} "${earned.species}" for your garden.`,
-            }
-          );
+          new Notification(`New Butterfly Earned: ${earned.species}! 🦋`, {
+            body: `Great job focusing on "${goal}"! You unlocked a ${earned.rarity} "${earned.species}" for your garden.`,
+          });
+        }
+
+        // Determine break mode
+        const nextBreakMode = (completedSessionsCount + 1) % 4 === 0 ? 'longBreak' : 'shortBreak';
+        const nextBreakMins = nextBreakMode === 'longBreak' ? longBreakMinutes : shortBreakMinutes;
+
+        setTimerMode(nextBreakMode);
+        setTimeLeftSeconds(nextBreakMins * 60);
+
+        if (autoStartBreak) {
+          setTimerStatus('running');
+        } else {
+          setTimerStatus('idle');
         }
       } else {
-        // Desktop Notification for break completion
+        // Break completed, switch back to focus session
         if (notificationsEnabled && 'Notification' in window && Notification.permission === 'granted') {
           new Notification('Break Time Ended! 🌿', {
             body: 'Ready to dive back into your next focus session?',
           });
         }
-        // Break completed, switch back to focus
         setTimerMode('focus');
         setTimeLeftSeconds(durationMinutes * 60);
         setTimerStatus('idle');
@@ -175,6 +146,10 @@ export default function App() {
     timerMode,
     goal,
     durationMinutes,
+    shortBreakMinutes,
+    longBreakMinutes,
+    autoStartBreak,
+    completedSessionsCount,
     completionChime,
     chimeVolume,
     notificationsEnabled,
@@ -208,10 +183,12 @@ export default function App() {
     else if (timerMode === 'longBreak') setTimeLeftSeconds(longBreakMinutes * 60);
   };
 
-  const handleClaimReward = (claimedButterfly: Butterfly) => {
-    setButterflies((prev) => [claimedButterfly, ...prev]);
-    setRewardButterfly(null);
-    setActiveModal('garden');
+  const handleClaimReward = () => {
+    if (rewardButterfly) {
+      setButterflies((prev) => [rewardButterfly, ...prev]);
+      setRewardButterfly(null);
+      setActiveModal('garden');
+    }
   };
 
   const handleModeChange = (mode: TimerMode) => {
