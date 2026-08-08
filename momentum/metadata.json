@@ -1,0 +1,8 @@
+{
+  "name": "Remix Remix Momentum",
+  "description": "A calm, minimalist ADHD Pomodoro focus timer and butterfly garden app with micro-step task planning and Gemini AI Momentum Coach.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
