@@ -1,17 +1,18 @@
 import express from 'express';
 import { GoogleGenAI } from '@google/genai';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 async function startServer() {
   const app = express();
   const PORT = 3000;
 
   app.use(express.json());
+
+  // Health check endpoint
+  app.get('/api/health', (_req, res) => {
+    res.json({ status: 'ok' });
+  });
 
   // API route for Gemini AI coach
   app.post('/api/chat', async (req, res) => {
@@ -106,7 +107,7 @@ async function startServer() {
     }
   });
 
-  // Vite middleware setup
+  // Vite middleware setup for development vs static serve for production
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true },
@@ -114,9 +115,9 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(__dirname, 'dist');
+    const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
-    app.get('*', (_req, res) => {
+    app.get('*all', (_req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
