@@ -98,11 +98,19 @@ export const ToDoModal: React.FC<ToDoModalProps> = ({
     );
   };
 
-  const filteredTasks = tasks.filter(t => {
-    if (filter === 'active') return !t.completed;
-    if (filter === 'completed') return t.completed;
-    return true;
-  });
+    const priorityOrder: Record<PriorityLevel, number> = {
+    High: 3,
+    Medium: 2,
+    Low: 1,
+  };
+
+  const filteredTasks = tasks
+    .filter(t => {
+      if (filter === 'active') return !t.completed;
+      if (filter === 'completed') return t.completed;
+      return true;
+    })
+    .sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#4A4A4A]/20 backdrop-blur-[2px]">
