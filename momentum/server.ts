@@ -2,16 +2,14 @@ import express from 'express';
 import { GoogleGenAI } from '@google/genai';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
-
-import { fileURLToPath } from "url";
-import path from "path";
+import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT || 3000;
 
   app.use(express.json());
 
@@ -146,7 +144,7 @@ async function startServer() {
   } else {
     const distPath = __dirname;
     app.use(express.static(distPath));
-    app.get('*', (_req, res) => {
+    app.use((_req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
