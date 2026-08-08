@@ -53,11 +53,11 @@ export const PomodoroModal: React.FC<PomodoroModalProps> = ({
   const seconds = timeLeftSeconds % 60;
   const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
-  const presets = [10, 15, 25, 45, 60];
+  const presets = [10, 25, 50, 75, 100];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#4A4A4A]/20 backdrop-blur-[2px] transition-all">
-      <div className="relative w-full max-w-lg bg-white rounded-3xl p-8 shadow-2xl shadow-[#4A4A4A]/5 border border-[#E5E0D5] animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-lg bg-white rounded-3xl p-6 sm:p-8 shadow-2xl shadow-[#4A4A4A]/5 border border-[#E5E0D5]">
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -70,7 +70,7 @@ export const PomodoroModal: React.FC<PomodoroModalProps> = ({
         {/* Modal Content */}
         <div className="flex flex-col items-center text-center">
           {/* Eyebrow Label */}
-          <span className="text-[11px] font-bold tracking-[0.3em] text-[#D99B38] uppercase mb-1">
+          <span className="text-[11px] font-bold tracking-[0.3em] text-[#8BA888] uppercase mb-1">
             ONE THING AT A TIME
           </span>
 
@@ -85,7 +85,7 @@ export const PomodoroModal: React.FC<PomodoroModalProps> = ({
               onClick={() => onModeChange('focus')}
               className={`px-4 py-2 rounded-xl transition-all ${
                 timerMode === 'focus'
-                  ? 'bg-[#D99B38] text-white shadow-sm font-semibold'
+                  ? 'bg-[#8BA888] text-white shadow-sm font-semibold'
                   : 'text-[#4A4A4A] hover:text-stone-900'
               }`}
             >
@@ -95,7 +95,7 @@ export const PomodoroModal: React.FC<PomodoroModalProps> = ({
               onClick={() => onModeChange('shortBreak')}
               className={`px-4 py-2 rounded-xl transition-all ${
                 timerMode === 'shortBreak'
-                  ? 'bg-[#D99B38] text-white shadow-sm font-semibold'
+                  ? 'bg-[#8BA888] text-white shadow-sm font-semibold'
                   : 'text-[#4A4A4A] hover:text-stone-900'
               }`}
             >
@@ -105,7 +105,7 @@ export const PomodoroModal: React.FC<PomodoroModalProps> = ({
               onClick={() => onModeChange('longBreak')}
               className={`px-4 py-2 rounded-xl transition-all ${
                 timerMode === 'longBreak'
-                  ? 'bg-[#D99B38] text-white shadow-sm font-semibold'
+                  ? 'bg-[#8BA888] text-white shadow-sm font-semibold'
                   : 'text-[#4A4A4A] hover:text-stone-900'
               }`}
             >
@@ -121,13 +121,13 @@ export const PomodoroModal: React.FC<PomodoroModalProps> = ({
                 value={goal}
                 onChange={(e) => setGoal(e.target.value)}
                 placeholder="What are you focusing on?"
-                className="w-full px-5 py-3 rounded-2xl border border-[#E5E0D5] bg-[#FDFCFB] text-[#4A4A4A] placeholder-[#A09B8E] text-center text-sm font-normal focus:outline-none focus:ring-2 focus:ring-[#D99B38]/40 focus:border-[#D99B38] transition-all"
+                className="w-full px-5 py-3 rounded-2xl border border-[#E5E0D5] bg-[#FDFCFB] text-[#4A4A4A] placeholder-[#A09B8E] text-center text-sm font-normal focus:outline-none focus:ring-2 focus:ring-[#8BA888]/40 focus:border-[#8BA888] transition-all"
               />
               {goal.trim() && onOpenAIChatForGoal && (
                 <button
                   type="button"
                   onClick={() => onOpenAIChatForGoal(goal)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#D99B38] hover:text-[#C58A2B] bg-[#FAF0D9] hover:bg-[#EED7A1] px-2.5 py-1 rounded-xl flex items-center gap-1 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#8BA888] hover:text-[#7A9677] bg-[#F5F2ED] hover:bg-[#E5E0D5] px-2.5 py-1 rounded-xl flex items-center gap-1 transition-colors"
                   title="Ask Momentum AI to break this task down"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
@@ -143,14 +143,14 @@ export const PomodoroModal: React.FC<PomodoroModalProps> = ({
               <span>Focus length</span>
               <input
                 type="number"
-                min="1"
-                max="180"
+                min="10"
+                max="100"
                 value={durationMinutes}
                 onChange={(e) => {
-                  const val = Math.max(1, Math.min(180, Number(e.target.value) || 1));
+                  const val = Math.max(10, Math.min(100, Number(e.target.value) || 10));
                   setDurationMinutes(val);
                 }}
-                className="w-16 px-2 py-1 text-center border border-[#E5E0D5] rounded-xl font-medium text-[#4A4A4A] bg-[#FDFCFB] focus:outline-none focus:ring-2 focus:ring-[#D99B38]"
+                className="w-16 px-2 py-1 text-center border border-[#E5E0D5] rounded-xl font-medium text-[#4A4A4A] bg-[#FDFCFB] focus:outline-none focus:ring-2 focus:ring-[#8BA888]"
               />
               <span>minutes</span>
 
@@ -162,7 +162,7 @@ export const PomodoroModal: React.FC<PomodoroModalProps> = ({
                     onClick={() => setDurationMinutes(p)}
                     className={`px-2 py-0.5 text-xs rounded-lg transition-colors ${
                       durationMinutes === p
-                        ? 'bg-[#D99B38] text-white font-medium'
+                        ? 'bg-[#8BA888] text-white font-medium'
                         : 'bg-[#F5F2ED] text-[#4A4A4A] hover:bg-[#E5E0D5]'
                     }`}
                   >
@@ -191,7 +191,7 @@ export const PomodoroModal: React.FC<PomodoroModalProps> = ({
             ) : (
               <button
                 onClick={onStart}
-                className="px-8 py-3.5 rounded-full bg-[#D99B38] text-white font-semibold text-sm hover:bg-[#C58A2B] transition-all flex items-center gap-2 shadow-sm active:scale-95"
+                className="px-8 py-3.5 rounded-full bg-[#8BA888] text-white font-semibold text-sm hover:bg-[#7A9677] transition-all flex items-center gap-2 shadow-sm active:scale-95"
               >
                 <Play className="w-4 h-4 fill-current ml-0.5" />
                 <span>{timerStatus === 'paused' ? 'Resume' : 'Start session'}</span>
@@ -215,7 +215,7 @@ export const PomodoroModal: React.FC<PomodoroModalProps> = ({
               id="autoStartBreakToggle"
               checked={autoStartBreak}
               onChange={(e) => setAutoStartBreak(e.target.checked)}
-              className="rounded text-[#D99B38] focus:ring-[#D99B38] accent-[#D99B38]"
+              className="rounded text-[#8BA888] focus:ring-[#8BA888] accent-[#8BA888]"
             />
             <label htmlFor="autoStartBreakToggle" className="cursor-pointer">
               Start break automatically when study session ends
@@ -224,7 +224,7 @@ export const PomodoroModal: React.FC<PomodoroModalProps> = ({
 
           {/* Footnote guidance */}
           <p className="text-xs text-[#A09B8E] max-w-sm leading-relaxed">
-            Choose any focus length from 10 minutes. When time is up, your completed session earns a fluttering butterfly for your sanctuary.
+            Choose a focus length of 10, 25, 50, 75, or 100 minutes. When time is up, your completed session earns a fluttering butterfly for your sanctuary.
           </p>
         </div>
       </div>
