@@ -1,11 +1,7 @@
 import express from 'express';
 import { GoogleGenAI } from '@google/genai';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 async function startServer() {
   const app = express();
@@ -13,16 +9,43 @@ async function startServer() {
 
   app.use(express.json());
 
+  // Health check endpoint
+  app.get('/api/health', (_req, res) => {
+    res.json({ status: 'ok' });
+  });
+
   // API route for Gemini AI coach
   app.post('/api/chat', async (req, res) => {
     try {
-      const { prompt, systemInstruction } = req.body;
+      const { prompt, systemInstruction, messages, mode } = req.body || {};
       const apiKey = process.env.GEMINI_API_KEY;
 
       if (!apiKey) {
         return res.status(400).json({
           error: 'GEMINI_API_KEY environment variable is missing.',
         });
+      }
+
+      let contents: any = prompt;
+
+      if ((!contents || (typeof contents === 'string' && !contents.trim())) && Array.isArray(messages) && messages.length > 0) {
+        // Map chat messages array to Gemini contents format
+        contents = messages.map((m: any) => ({
+          role: m.role === 'assistant' || m.role === 'model' ? 'model' : 'user',
+          parts: [{ text: String(m.content || m.text || '') }],
+        })).filter((c: any) => c.parts[0].text.trim().length > 0);
+      }
+
+      // Fallback if contents is empty
+      if (!contents || (Array.isArray(contents) && contents.length === 0)) {
+        contents = 'Hello! How can you help me stay focused today?';
+      }
+
+      let systemPrompt = systemInstruction || 'You are a warm, supportive ADHD Momentum & Focus Coach. Keep responses concise, encouraging, and actionable.';
+      if (mode === 'explain') {
+        systemPrompt += ' Explain concepts in super clear, bite-sized, gentle bullet points.';
+      } else if (mode === 'task') {
+        systemPrompt += ' Break down tasks into 3 simple, non-overwhelming micro-steps.';
       }
 
       const ai = new GoogleGenAI({
@@ -35,13 +58,14 @@ async function startServer() {
       });
       const response = await ai.models.generateContent({
         model: 'gemini-3.6-flash',
-        contents: prompt,
+        contents,
         config: {
-          systemInstruction: systemInstruction || 'You are a warm, supportive ADHD Momentum & Focus Coach.',
+          systemInstruction: systemPrompt,
         },
       });
 
-      return res.json({ text: response.text });
+      const replyText = response.text || "I'm right here with you! What small step shall we focus on next?";
+      return res.json({ reply: replyText, text: replyText });
     } catch (error: any) {
       console.error('Gemini API Error:', error);
       return res.status(500).json({ error: error.message || 'Failed to generate response' });
@@ -106,7 +130,7 @@ async function startServer() {
     }
   });
 
-  // Vite middleware setup
+  // Vite middleware setup for development vs static serve for production
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true },
