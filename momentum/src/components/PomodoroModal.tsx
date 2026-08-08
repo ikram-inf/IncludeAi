@@ -144,10 +144,10 @@ export const PomodoroModal: React.FC<PomodoroModalProps> = ({
               <input
                 type="number"
                 min="10"
-                max="100"
+                max="180"
                 value={durationMinutes}
                 onChange={(e) => {
-                  const val = Math.max(10, Math.min(100, Number(e.target.value) || 10));
+                  const val = Math.max(10, Math.min(180, Number(e.target.value) || 10));
                   setDurationMinutes(val);
                 }}
                 className="w-16 px-2 py-1 text-center border border-[#E5E0D5] rounded-xl font-medium text-[#4A4A4A] bg-[#FDFCFB] focus:outline-none focus:ring-2 focus:ring-[#8BA888]"
@@ -224,7 +224,7 @@ export const PomodoroModal: React.FC<PomodoroModalProps> = ({
 
           {/* Footnote guidance */}
           <p className="text-xs text-[#A09B8E] max-w-sm leading-relaxed">
-            Choose a focus length of 10, 25, 50, 75, or 100 minutes. When time is up, your completed session earns a fluttering butterfly for your sanctuary.
+            Choose a focus length of 10, 15, 25, 45, or 60 minutes. When time is up, your completed session earns a fluttering butterfly for your sanctuary.
           </p>
         </div>
       </div>
